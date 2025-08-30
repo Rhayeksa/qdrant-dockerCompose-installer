@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  qdrant:
+    image: qdrant/qdrant:${QDRANT_IMAGE_VERSION:-latest}
+    container_name: ${QDRANT_CONTAINER_NAME:-qdrant_server}
+    ports:
+      - "${QDRANT_API_PORT:-6333}:6333" # Qdrant API port
+      - "${QDRANT_GRPC_PORT:-6334}:6334" # Qdrant gRPC port
+    volumes:
+      - ${QDRANT_DATA_PATH:-./}.qdrant:/qdrant/storage
+    # restart: always
