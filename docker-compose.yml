@@ -1,11 +1,24 @@
 version: "3.8"
+
 services:
   qdrant:
     image: qdrant/qdrant:${QDRANT_IMAGE_VERSION:-latest}
-    container_name: ${QDRANT_CONTAINER_NAME:-qdrant_server}
+    container_name: ${QDRANT_CONTAINER_NAME:-qdrant}
+    restart: ${QDRANT_RESTART:-always}
+    env_file:
+      - ./.env
     ports:
-      - "${QDRANT_API_PORT:-6333}:6333" # Qdrant API port
-      - "${QDRANT_GRPC_PORT:-6334}:6334" # Qdrant gRPC port
+      - "${QDRANT_PORT_REST:-6333}:6333"  # REST API + built-in Web UI
+      - "${QDRANT_PORT_GRPC:-6334}:6334"     # gRPC API (untuk performance)
     volumes:
-      - ${QDRANT_DATA_PATH:-./}.qdrant:/qdrant/storage
-    # restart: always
+      - ${QDRANT_DIR:-.}/.qdrant:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: ${QDRANT_PORT_GRPC:-6334}
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY}
+      QDRANT__SERVICE__JWT_RBAC: ${QDRANT__SERVICE__JWT_RBAC:-false}
+      # QDRANT__STORAGE__OPTIMIZER__MEMMAP_THRESHOLD: 20000
+      # QDRANT__STORAGE__OPTIMIZER__INDEXING_THRESHOLD: 20000
+
+# volumes:
+#   qdrant_storage:
+#     driver: local
